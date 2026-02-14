@@ -19,6 +19,7 @@ jobs:
   first_job:
     name: Input processing
     runs-on: ubuntu-22.04
+    timeout-minutes: 5
     outputs:
       consumed_input: ${{ steps.process_output.outputs.result }}
       
@@ -37,6 +38,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: first_job
     environment: dev
+    timeout-minutes: 5
     
     steps:
       - name: Validate secret is populated
