@@ -11,7 +11,7 @@ on:
 jobs:
   first_job:
     name: Input processing
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-22.04
     outputs:
       consumed_input: ${{ steps.process_output.outputs.result }}
       
