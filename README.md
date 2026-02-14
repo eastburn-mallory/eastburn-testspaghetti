@@ -52,50 +52,6 @@ This demonstrates secure usage of environment-scoped secrets and cross-job data 
 
 ---
 
-## Security Measures Implemented
-
-The workflow includes the following security controls:
-
-### 1. Restricted Workflow Permissions
-
-```yaml
-permissions:
-  contents: read
-```
-
-The default GitHub token is restricted with read-only access.
-
-This follows the principle of least privilege and prevents unnecessary write access.
-
----
-
-### 2. Concurrency Control
-
-```yaml
-concurrency:
-  group: environment-secret-poc
-  cancel-in-progress: true
-```
-This ensures that only one workflow run executes at a time.
-
-If a new run is triggered, any in-progress run is automatically canceled.
-
-This prevents race conditions and unnecessary resource usage.
-
----
-
-### 3. Job Timeouts
-
-```yaml
-timeout-minutes: 5
-```
-
-Each Job has a maximum execution time.
-
-This prevents runaway processes or stalled jobs from consuming resources indefinitely.
-
----
-
 ## How to Set up and Run This Workflow
 
 This section assumes no prior experience with GitHub Actions.
@@ -144,6 +100,50 @@ This section assumes no prior experience with GitHub Actions.
 3. Click **Run workflow**.
 4. Provide a value for the message input.
 5. Select **Run workflow**.
+
+---
+
+## Security Measures Implemented
+
+The workflow includes the following security controls:
+
+### 1. Restricted Workflow Permissions
+
+```yaml
+permissions:
+  contents: read
+```
+
+The default GitHub token is restricted with read-only access.
+
+This follows the principle of least privilege and prevents unnecessary write access.
+
+---
+
+### 2. Concurrency Control
+
+```yaml
+concurrency:
+  group: environment-secret-poc
+  cancel-in-progress: true
+```
+This ensures that only one workflow run executes at a time.
+
+If a new run is triggered, any in-progress run is automatically canceled.
+
+This prevents race conditions and unnecessary resource usage.
+
+---
+
+### 3. Job Timeouts
+
+```yaml
+timeout-minutes: 5
+```
+
+Each Job has a maximum execution time.
+
+This prevents runaway processes or stalled jobs from consuming resources indefinitely.
 
 ---
 
