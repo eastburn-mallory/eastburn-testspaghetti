@@ -1,1 +1,19 @@
+name: Environment Secret Proof of Concept
 
+on:
+  workflow_dispatch:
+    inputs:
+      message:
+        description: "Provide a text input to process."
+        required: true
+        type: string
+
+jobs:
+  first_job:
+    name: Input processing
+    runs-on: ubuntu-slim
+    steps:
+      - name: Print input
+        run: |
+          echo "The workflow_dispatch text input was: $ {{ github.events.inputs.message }}"
+    
