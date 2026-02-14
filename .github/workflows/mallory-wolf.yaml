@@ -1,5 +1,14 @@
+# ---------------------------------------------
+# Workflow Name
+# ---------------------------------------------
+# This is the display name shown in the Actions tab.
 name: Environment Secret Proof of Concept
 
+# ---------------------------------------------
+# Trigger Configuration
+# ---------------------------------------------
+# This workflow is manually triggered using workflow_dispatch.
+# It requires a single text input named "message".
 on:
   workflow_dispatch:
     inputs:
@@ -8,39 +17,82 @@ on:
         required: true
         type: string
 
+# ---------------------------------------------
+# Security Measure 1: Least Privilege Permissions
+# ---------------------------------------------
+# Restrict the default GITHUB_TOKEN to read-only access.
+# This prevents unintended repository write operations.
 permissions: 
   contents: read
 
+# ---------------------------------------------
+# Security Measure 2: Concurrency Control
+# ---------------------------------------------
+# Ensures only one workflow run executes at a time.
+# If a new run is triggered, any in-progress run is canceled.
 concurrency:
   group: environment-secret-poc
   cancel-in-progress: true
   
 jobs:
+    # =============================================
+    # Job 1: Input Processing
+    # =============================================
+    # - Not attached to any environment
+    # - Consumes and prints workflow input
+    # - Produces an output for downstream jobs
   first_job:
     name: Input processing
     runs-on: ubuntu-22.04
+
+    # Security Measure 3: Job Timeout
+    # Prevents runaway or stalled executions.
     timeout-minutes: 5
+    
+    # Define job-level output that references
+    # the step output created below.
     outputs:
       consumed_input: ${{ steps.process_output.outputs.result }}
       
     steps:
+      # Step 1: Print the manual input provided when
+      # the workflow was triggered.
       - name: Print input
         run: |
           echo "The workflow_dispatch text input was: ${{ github.event.inputs.message }}"
 
+      # Step 2: Generate a step output using $GITHUB_OUTPUT.
+      # This allows the value to be promoted to a job output
+      # and consumed by other jobs.
       - name: Generate output
         id: process_output
         run: | 
           echo "result=${{ github.event.inputs.message }}" >> $GITHUB_OUTPUT
   
+  # =============================================
+  # Job 2: Secret Validation
+  # =============================================
+  # - Attached to the 'dev' environment
+  # - Validates that an environment-level secret exists
+  # - Prints output from Job 1
   second_job:
     name: Secret validation
     runs-on: ubuntu-22.04
+    
+    # Ensures this job only runs after first_job completes successfully.
     needs: first_job
+    
+    # Attach this job to the GitHub Actions environment named "dev".
+    # This enables access to environment-scoped secrets.
     environment: dev
+    
+    # Apply timeout protection to this job as well.
     timeout-minutes: 5
     
     steps:
+      # Step 1: Validate that the environment secret is populated.
+      # The secret value is NOT printed to logs.
+      # This confirms secure access without exposing sensitive data.
       - name: Validate secret is populated
         run: |
           if [ -z "${{ secrets.FAVORITE_HERO }}" ]; then
@@ -50,6 +102,8 @@ jobs:
             echo "Environment secret is configured."
           fi
 
+      # Step 2: Print the output received from Job 1.
+      # Demonstrates cross-job output passing.
       - name: Print job 1 output
         run: |
           echo "Output from Job 1 was: ${{ needs.first_job.outputs.consumed_input }}"
