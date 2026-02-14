@@ -12,8 +12,16 @@ jobs:
   first_job:
     name: Input processing
     runs-on: ubuntu-slim
+    outputs:
+      consumed_input: ${{ steps.process_output.outputs.result }}
+      
     steps:
       - name: Print input
         run: |
           echo "The workflow_dispatch text input was: ${{ github.event.inputs.message }}"
+
+      - name: Generate output
+        id: process_output
+        run: | 
+          echo "result=${{ github.event.inputs.message }}" >> $GITHUB_OUTPUT
     
