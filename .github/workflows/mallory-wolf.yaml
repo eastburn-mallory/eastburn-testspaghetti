@@ -24,4 +24,24 @@ jobs:
         id: process_output
         run: | 
           echo "result=${{ github.event.inputs.message }}" >> $GITHUB_OUTPUT
+  
+  second_job:
+    name: Secret validation
+    runs-on: ubuntu-22.04
+    needs: first_job
+    environment: dev
     
+    steps:
+      - name: Validate secret is populated
+        run: |
+          if [ -z "${{ secrets.FAVORITE_HERO }}" ]; then
+            echo "Environment secret is not configured."
+            exit 1
+          else
+            echo "Environment secret is configured."
+          fi
+
+      - name: Print job 1 output
+        run: |
+          echo "Output from Job 1 was: ${{ needs.first_job.outputs.consumed_input }}"
+
