@@ -15,5 +15,5 @@ jobs:
     steps:
       - name: Print input
         run: |
-          echo "The workflow_dispatch text input was: $ {{ github.events.inputs.message }}"
+          echo "The workflow_dispatch text input was: ${{ github.event.inputs.message }}"
     
